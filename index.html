@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM et intelligence artificielle</title>
+<meta name="description" content="CRM et intelligence artificielle : usages, bénéfices et limites. Étude de cas : Agentforce dans Salesforce. Module Outils CRM, ENSAO Oujda.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#05080F;overflow:hidden;font-family:Inter,Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body.idle{cursor:none}
+#stage{position:fixed;left:50%;top:50%;width:1920px;height:1080px;transform-origin:50% 50%;overflow:hidden;background:#05080F}
+#deck>section{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;display:flex;flex-direction:column;font-family:Inter,Arial,sans-serif;color:#0E2341;opacity:0;visibility:hidden;pointer-events:none}
+#deck>section.on{opacity:1;visibility:visible}
+#deck div{display:flex;flex-direction:column;min-width:0}
+#deck h1,#deck h2,#deck h3,#deck p,#deck ul,#deck ol{margin:0}
+#deck h1{font-size:96px;font-weight:600;line-height:1.1}
+#deck h2{font-size:64px;font-weight:600;line-height:1.15}
+#deck h3{font-size:44px;font-weight:600;line-height:1.2}
+#deck p{font-size:32px;line-height:1.4}
+#deck aside{display:none}
+#deck #e10-1ftwghs{white-space:nowrap;width:auto!important}
+#deck hr{border:0;margin:0}
+#deck x-icon{display:inline-flex;flex:none}
+#deck x-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+#deck x-icon svg *{stroke-dasharray:1 1}
+#deck x-shape{display:block;flex:none}
+#deck iframe.embed{position:absolute;border:0;background:transparent;pointer-events:none}
+#deck svg.conn{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible;pointer-events:none}
+/* word reveal */
+#deck .w{display:inline-block;overflow:hidden;vertical-align:bottom;padding:0 .02em .14em;margin:0 -.02em -.14em}
+#deck .wi{display:inline-block}
+/* ambient background of light slides */
+#deck div.amb{position:absolute;left:0;top:0;width:1920px;height:1080px;display:block;pointer-events:none;overflow:hidden}
+#deck div.amb i{position:absolute;display:block;border-radius:50%;filter:blur(60px)}
+#deck div.amb i.a{width:900px;height:900px;left:1180px;top:-380px;animation:driftA 22s ease-in-out infinite alternate}
+#deck div.amb i.b{width:760px;height:760px;left:-300px;top:560px;animation:driftB 26s ease-in-out infinite alternate}
+#deck div.amb i.c{width:520px;height:520px;left:760px;top:720px;animation:driftC 30s ease-in-out infinite alternate}
+#deck div.amb b{position:absolute;inset:0;display:block;background-image:radial-gradient(rgba(14,35,65,.09) 1.4px,transparent 1.6px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 80% 10%,#000 0%,transparent 70%);mask-image:radial-gradient(ellipse 70% 60% at 80% 10%,#000 0%,transparent 70%);animation:gridPan 40s linear infinite}
+@keyframes driftA{to{translate:-260px 180px;scale:1.15}}
+@keyframes driftB{to{translate:320px -160px;scale:.9}}
+@keyframes driftC{to{translate:-200px -240px;scale:1.2}}
+@keyframes gridPan{to{background-position:44px 44px}}
+/* light sweep */
+#deck div.shine{position:absolute;left:0;top:0;right:0;bottom:0;display:block;pointer-events:none;border-radius:inherit;background:linear-gradient(105deg,rgba(255,255,255,0) 35%,rgba(255,255,255,.22) 50%,rgba(255,255,255,0) 65%);background-size:300% 100%;background-repeat:no-repeat}
+#progress{position:fixed;left:0;bottom:0;height:4px;background:linear-gradient(90deg,#2563EB,#7FA6F5);width:0;transition:width .8s cubic-bezier(.16,1,.3,1);z-index:5;box-shadow:0 0 12px rgba(37,99,235,.7)}
+#hint{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:rgba(10,20,40,.82);color:#E8EEF8;font:500 14px/1.4 Inter,Arial,sans-serif;padding:10px 18px;border-radius:999px;z-index:6;transition:opacity .8s;white-space:nowrap;pointer-events:none;backdrop-filter:blur(8px)}
+#hint.hide{opacity:0}
+#hint b{color:#7FA6F5;font-weight:700}
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:40vh;overflow:auto;background:rgba(8,16,32,.95);color:#E8EEF8;font:400 18px/1.55 Inter,Arial,sans-serif;padding:20px 28px 28px;z-index:7;display:none;border-top:2px solid #2563EB}
+#notes.show{display:block}
+#notes h4{margin:0 0 8px;font:700 13px/1 Inter,Arial,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#7FA6F5}
+#goto{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(5,8,15,.6);z-index:8}
+#goto.show{display:flex}
+#goto form{background:#FDFDFC;padding:28px 32px;border-radius:18px;font:600 18px Inter,Arial,sans-serif;color:#0E2341;display:flex;gap:12px;align-items:center;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+#goto input{width:90px;font:600 22px Inter,Arial,sans-serif;padding:8px 12px;border:2px solid #2563EB;border-radius:10px;color:#0E2341}
+@media print{#hint,#progress,#notes,#goto{display:none!important}}
+</style>
+</head>
+<body>
+<div id="stage"><div id="deck">
+<section id="cover" data-transition="magic" style="background:linear-gradient(135deg, #0b1d38 0%, #13325e 100%)">
+  <iframe class="embed" data-embed="0" sandbox="allow-scripts" title="" aria-hidden="true" tabindex="-1" style="position:absolute; top:50%; right:0; width:960px; height:1080px"></iframe>
+  <h1 id="e3-1ftwghs" data-build-in="rise 2 auto" style="position:absolute; top:242.16px; left:128px; width:860px; font-family:Inter, Arial, sans-serif; font-size:104px; font-weight:800; line-height:1.02; letter-spacing:-2px; color:#f3f6fb">CRM et intelligence artificielle</h1>
+  <p id="e4-1ftwghs" data-build-in="rise 3 auto" style="position:absolute; top:594px; left:128px; width:860px; font-family:Inter, Arial, sans-serif; font-size:40px; font-weight:400; line-height:1.3; color:#c9d6ea">Usages, bénéfices et limites</p>
+  <p id="e5-1ftwghs" data-build-in="rise 4 auto" style="position:absolute; top:668.54px; left:128px; width:680px; padding:14px 28px; font-family:Inter, Arial, sans-serif; font-size:28px; font-weight:600; line-height:1.3; color:#f7faff; background:#2563eb; border-radius:256px">Étude de cas : Agentforce dans Salesforce</p>
+  <div id="bubble" data-build-in="pop 5 auto" style="position:absolute; top:250px; left:1100px; width:620px; display:flex; flex-direction:column; gap:8px; padding:28px 36px; background:#f3f6fb; border-radius:32px 32px 32px 8px; box-shadow:0 24px 60px #0000004d">
+    <p style="font-family:Inter, Arial, sans-serif; font-size:24px; font-weight:500; color:#6a7a93">Client · 09:41</p>
+    <p style="font-family:Inter, Arial, sans-serif; font-size:32px; font-weight:600; line-height:1.3; color:#0e2341">« Ma commande devait arriver hier. Où est-elle ? »</p>
+  </div>
+  <div id="e7-1ftwghs" data-build-in="pop 6 auto" style="position:absolute; top:490px; left:1100px; width:104px; height:104px; display:flex; flex-direction:row; align-items:center; justify-content:center; background:#2563eb; border-radius:256px; box-shadow:0 0 0 12px #2563eb40">
+    <x-icon name="Lightning" style="width:52px; height:52px; color:#f7faff"></x-icon>
+  </div>
+  <p id="e8-1ftwghs" data-build-in="fade 7 auto" style="position:absolute; top:524px; left:1232px; width:520px; font-family:Inter, Arial, sans-serif; font-size:26px; font-weight:500; color:#a9bcd8">Agent IA connecté au CRM</p>
+  <div id="e9-1ftwghs" data-build-in="rise 8 auto" style="position:absolute; top:640px; left:1172px; width:620px; display:flex; flex-direction:column; gap:8px; padding:28px 36px; background:#2563eb; border-radius:32px 32px 8px 32px; box-shadow:0 24px 60px #0000004d">
+    <p style="font-family:Inter, Arial, sans-serif; font-size:24px; font-weight:500; color:#cfe0ff">Agent IA</p>
+    <p style="font-family:Inter, Arial, sans-serif; font-size:30px; font-weight:500; line-height:1.3; color:#f7faff">Je retrouve votre commande et je vérifie le suivi de livraison…</p>
+  </div>
+  <p id="e10-1ftwghs" data-build-in="fade 9 auto" style="position:absolute; bottom:68.84px; left:calc(50% - 697.97px); width:268.06px; height:75.25px; font-family:Inter, Arial, sans-serif; font-size:27px; font-weight:700; color:#9fb3cf; transform:translateX(-50%)">BOUAZZAOUI Younes<br>AMRANI Ilias</p>
+  <aside>Bonjour à tous. Notre présentation porte sur le CRM et l’intelligence artificielle : à quoi sert l’IA dans un CRM, ce qu’elle apporte et quelles sont ses limites. Nous allons suivre un exemple concret du début à la fin : un client dont la commande est en retard. La partie pratique s’appuie sur Agentforce, la solution d’agents IA de Salesforce.</aside>
+</section>
+<section id="probleme" data-transition="fade" style="background:#F6F8FB;font-family:'Inter', Arial, sans-serif;color:#0E2341;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:100px;width:1000px;font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2563EB">Introduction</p>
+<h2 style="position:absolute;left:128px;top:144px;width:1664px;font-size:64px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#0E2341">Le problème : répondre efficacement au client</h2>
+<div id="bubble" style="position:absolute;left:128px;top:330px;width:820px;display:flex;flex-direction:column;gap:8px;background:#FEFEFD;padding:36px 40px;border-radius:32px 32px 32px 8px;box-shadow:0px 24px 60px rgba(14,35,65,0.14)">
+<p style="font-size:24px;font-weight:500;color:#6A7A93">Client · 09:41</p>
+<p style="font-size:44px;font-weight:700;line-height:1.25;color:#0E2341">« Ma commande devait arriver hier. Où est-elle ? »</p>
+</div>
+<div data-build-in="left 1 auto" style="position:absolute;left:1040px;top:330px;width:752px;display:flex;flex-direction:row;align-items:center;gap:24px;background:#FEFEFD;padding:24px 32px;border-radius:20px;border:1px solid #E3E8F0">
+<div style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;background:#E4ECFD;border-radius:50%"><p style="font-size:26px;font-weight:700;color:#1E4FC2">1</p></div>
+<h3 style="font-size:32px;font-weight:600;line-height:1.2;color:#0E2341">Retrouver la commande</h3>
+</div>
+<div data-build-in="left 2 auto" style="position:absolute;left:1040px;top:450px;width:752px;display:flex;flex-direction:row;align-items:center;gap:24px;background:#FEFEFD;padding:24px 32px;border-radius:20px;border:1px solid #E3E8F0">
+<div style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;background:#E4ECFD;border-radius:50%"><p style="font-size:26px;font-weight:700;color:#1E4FC2">2</p></div>
+<h3 style="font-size:32px;font-weight:600;line-height:1.2;color:#0E2341">Comprendre le contexte</h3>
+</div>
+<div data-build-in="left 3 auto" style="position:absolute;left:1040px;top:570px;width:752px;display:flex;flex-direction:row;align-items:center;gap:24px;background:#FEFEFD;padding:24px 32px;border-radius:20px;border:1px solid #E3E8F0">
+<div style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;background:#E4ECFD;border-radius:50%"><p style="font-size:26px;font-weight:700;color:#1E4FC2">3</p></div>
+<h3 style="font-size:32px;font-weight:600;line-height:1.2;color:#0E2341">Apporter une réponse fiable</h3>
+</div>
+<div data-build-in="rise 4 auto" style="position:absolute;left:128px;top:704px;width:1664px;display:flex;flex-direction:column;gap:8px;background:#0E2341;padding:32px 48px;border-radius:24px">
+<p style="font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#7FA6F5">Problématique</p>
+<p style="font-size:36px;font-weight:600;line-height:1.3;color:#F3F6FB">Comment l’IA peut-elle améliorer la relation client tout en maintenant la qualité du service ?</p>
+</div>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;text-align:right;color:#8A97AB">2 / 12</p>
+<aside>Imaginons un client qui écrit au service client : sa commande devait arriver hier et il ne sait pas où elle est. Pour lui répondre correctement, il faut retrouver la commande, comprendre son contexte (qui il est, ce qu’il a acheté, ses échanges précédents) et donner une réponse fiable, pas une réponse vague. Multipliez cette situation par des centaines de demandes par jour : c’est là que la question de l’IA se pose. D’où notre problématique : comment l’IA peut-elle améliorer la relation client tout en maintenant la qualité du service ?</aside>
+</section>
+<section id="role-crm" data-transition="fade" style="background:#fdfdfc">
+  <p style="position:absolute; top:100px; left:128px; width:1000px; font-family:Inter, Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:4px; text-transform:uppercase; color:#2563eb">Partie 1 · Comprendre</p>
+  <h2 style="position:absolute; top:144px; left:128px; width:1664px; font-family:Inter, Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:-1px; color:#0e2341">Le rôle du CRM</h2>
+  <p data-build-in="rise 1 auto" style="position:absolute; top:250px; left:128px; width:1400px; font-family:Inter, Arial, sans-serif; font-size:32px; line-height:1.4; color:#4a5568">Le CRM organise les informations et les interactions avec les prospects et les clients.</p>
+  <div data-build-in="pop 2 auto" style="position:absolute; top:390px; left:740px; width:440px; display:flex; flex-direction:column; gap:12px; padding:32px; background:#fefefd; border:2px solid #2563eb; border-radius:24px; box-shadow:0 24px 60px #2563eb2e">
+    <div style="display:flex; flex-direction:row; gap:16px; align-items:center">
+      <x-icon name="Users" style="width:44px; height:44px; color:#2563eb"></x-icon>
+      <h3 style="font-family:Inter, Arial, sans-serif; font-size:32px; font-weight:700; line-height:1.2; color:#0e2341">Fiche client</h3>
+    </div>
+    <p style="font-family:Inter, Arial, sans-serif; font-size:28px; font-weight:700; color:#0e2341">Kenza A.</p>
+    <p style="font-family:Inter, Arial, sans-serif; font-size:24px; color:#4a5568">Cliente depuis 2023 · Oujda</p>
+    <x-shape kind="line" style="height:1px; flex:0 0 auto; background:#e3e8f0"></x-shape>
+    <p style="font-family:Inter, Arial, sans-serif; font-size:24px; color:#4a5568">Commande n° 48213 · en livraison</p>
+    <p style="font-family:Inter, Arial, sans-serif; font-size:24px; color:#4a5568">Dernier échange : il y a 2 jours</p>
+  </div>
+  <div data-build-in="fade 3 auto" style="position:absolute; top:400px; left:128px; width:520px; display:flex; flex-direction:row; gap:20px; align-items:start; padding:24px 28px; background:#f6f8fb; border-radius:20px">
+    <x-icon name="Key" style="width:44px; height:44px; color:#2563eb"></x-icon>
+    <div style="display:flex; flex-direction:column; gap:6px; flex:1">
+      <h3 style="font-family:Inter, Arial, sans-serif; font-size:30px; font-weight:700; line-height:1.2; color:#0e2341">Coordonnées</h3>
+      <p style="font-family:Inter, Arial, sans-serif; font-size:24px; line-height:1.4; color:#4a5568">Nom, e-mail, téléphone, adresse</p>
+    </div>
+  </div>
+  <x-connector x1="648" y1="470" x2="740" y2="500" head="none" data-build-in="fade 4 auto" style="color:#9db5e8; border-style:dashed"></x-connector>
+  <div data-build-in="fade 5 auto" style="position:absolute; top:400px; left:1272px; width:520px; display:flex; flex-direction:row; gap:20px; align-items:start; padding:24px 28px; background:#f6f8fb; border-radius:20px">
+    <x-icon name="Chat" style="width:44px; height:44px; color:#2563eb"></x-icon>
+    <div style="display:flex; flex-direction:column; gap:6px; flex:1">
+      <h3 style="font-family:Inter, Arial, sans-serif; font-size:30px; font-weight:700; line-height:1.2; color:#0e2341">Historique des échanges</h3>
+      <p style="font-family:Inter, Arial, sans-serif; font-size:24px; line-height:1.4; color:#4a5568">Appels, e-mails, chats, réclamations</p>
+    </div>
+  </div>
+  <x-connector x1="1272" y1="470" x2="1180" y2="500" head="none" data-build-in="fade 6 auto" style="color:#9db5e8; border-style:dashed"></x-connector>
+  <div data-build-in="fade 7 auto" style="position:absolute; top:600px; left:128px; width:520px; display:flex; flex-direction:row; gap:20px; align-items:start; padding:24px 28px; background:#f6f8fb; border-radius:20px">
+    <x-icon name="Chart" style="width:44px; height:44px; color:#2563eb"></x-icon>
+    <div style="display:flex; flex-direction:column; gap:6px; flex:1">
+      <h3 style="font-family:Inter, Arial, sans-serif; font-size:30px; font-weight:700; line-height:1.2; color:#0e2341">Opportunités commerciales</h3>
+      <p style="font-family:Inter, Arial, sans-serif; font-size:24px; line-height:1.4; color:#4a5568">Devis, ventes en cours</p>
+    </div>
+  </div>
+  <x-connector x1="648" y1="670" x2="740" y2="640" head="none" data-build-in="fade 8 auto" style="color:#9db5e8; border-style:dashed"></x-connector>
+  <div data-build-in="fade 9 auto" style="position:absolute; top:600px; left:1272px; width:520px; display:flex; flex-direction:row; gap:20px; align-items:start; padding:24px 28px; background:#f6f8fb; border-radius:20px">
+    <x-icon name="Wrench" style="width:44px; height:44px; color:#2563eb"></x-icon>
+    <div style="display:flex; flex-direction:column; gap:6px; flex:1">
+      <h3 style="font-family:Inter, Arial, sans-serif; font-size:30px; font-weight:700; line-height:1.2; color:#0e2341">Demandes de support</h3>
+      <p style="font-family:Inter, Arial, sans-serif; font-size:24px; line-height:1.4; color:#4a5568">Tickets, statut, priorité</p>
+    </div>
+  </div>
+  <x-connector x1="1272" y1="670" x2="1180" y2="640" head="none" data-build-in="fade 10 auto" style="color:#9db5e8; border-style:dashed"></x-connector>
+  <div data-build-in="rise 11 auto" style="position:absolute; top:812px; left:128px; width:1664px; display:flex; flex-direction:row; gap:20px; align-items:center; justify-content:center">
+    <p style="font-family:Inter, Arial, sans-serif; font-size:26px; color:#4a5568">Équipes concernées :</p>
+    <p style="padding:10px 24px; font-family:Inter, Arial, sans-serif; font-size:26px; font-weight:600; color:#1e4fc2; background:#e4ecfd; border-radius:256px">Ventes</p>
+    <p style="padding:10px 24px; font-family:Inter, Arial, sans-serif; font-size:26px; font-weight:600; color:#1e4fc2; background:#e4ecfd; border-radius:256px">Marketing</p>
+    <p style="padding:10px 24px; font-family:Inter, Arial, sans-serif; font-size:26px; font-weight:600; color:#1e4fc2; background:#e4ecfd; border-radius:256px">Service client</p>
+  </div>
+  <p style="position:absolute; right:128px; bottom:64px; width:200px; font-family:Inter, Arial, sans-serif; font-size:24px; text-align:right; color:#8a97ab">3 / 12</p>
+  <aside>Avant de parler d’IA, rappelons le rôle du CRM. C’est l’outil qui centralise tout ce que l’entreprise sait sur un prospect ou un client : ses coordonnées, l’historique des échanges, les opportunités commerciales et les demandes de support. Ces informations sont partagées entre les ventes, le marketing et le service client. Le CRM n’est pas seulement un logiciel : c’est aussi une démarche, une façon d’organiser la relation client autour de ces informations. Point clé pour la suite : sans ces données bien organisées, l’IA n’a rien de fiable sur quoi s’appuyer.</aside>
+</section>
+<section id="formes-ia" data-transition="fade" style="background:#F6F8FB;font-family:'Inter', Arial, sans-serif;color:#0E2341;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:100px;width:1000px;font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2563EB">Partie 1 · Comprendre</p>
+<h2 style="position:absolute;left:128px;top:144px;width:1664px;font-size:64px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#0E2341">Les différentes formes d’IA dans le CRM</h2>
+<div data-build-in="rise 1 auto" style="position:absolute;left:128px;top:300px;width:520px;display:flex;flex-direction:column;gap:20px;background:#FEFEFD;padding:44px;border-radius:28px;border-top:8px solid #2563EB;box-shadow:0px 16px 40px rgba(14,35,65,0.08)">
+<x-icon name="Chart" style="color:#2563EB;width:56px;height:56px"></x-icon>
+<p style="font-size:26px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#2563EB">IA prédictive</p>
+<h3 style="font-size:72px;font-weight:800;line-height:1;letter-spacing:-1px;color:#0E2341">Anticiper</h3>
+<p style="font-size:30px;line-height:1.4;color:#4A5568">Estimer la probabilité de conversion d’un prospect</p>
+</div>
+<div data-build-in="rise 2 auto" style="position:absolute;left:700px;top:300px;width:520px;display:flex;flex-direction:column;gap:20px;background:#FEFEFD;padding:44px;border-radius:28px;border-top:8px solid #2563EB;box-shadow:0px 16px 40px rgba(14,35,65,0.08)">
+<x-icon name="Chat" style="color:#2563EB;width:56px;height:56px"></x-icon>
+<p style="font-size:26px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#2563EB">IA générative</p>
+<h3 style="font-size:72px;font-weight:800;line-height:1;letter-spacing:-1px;color:#0E2341">Produire</h3>
+<p style="font-size:30px;line-height:1.4;color:#4A5568">Rédiger une réponse à un client</p>
+</div>
+<div data-build-in="rise 3 auto" style="position:absolute;left:1272px;top:300px;width:520px;display:flex;flex-direction:column;gap:20px;background:#0E2341;padding:44px;border-radius:28px;border-top:8px solid #7FA6F5;box-shadow:0px 24px 60px rgba(14,35,65,0.25)">
+<x-icon name="Tool" style="color:#7FA6F5;width:56px;height:56px"></x-icon>
+<p style="font-size:26px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7FA6F5">IA agentique</p>
+<h3 style="font-size:72px;font-weight:800;line-height:1;letter-spacing:-1px;color:#F3F6FB">Agir</h3>
+<p style="font-size:30px;line-height:1.4;color:#C9D6EA">Consulter un dossier et exécuter une action autorisée</p>
+<p style="font-size:24px;font-weight:600;color:#F7FAFF;background:#2563EB;padding:8px 20px;border-radius:999px">Au cœur de notre étude de cas</p>
+</div>
+<div data-build-in="fade 4 auto" style="position:absolute;left:128px;top:852px;width:1664px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:16px">
+<x-icon name="Link" style="color:#2563EB;width:36px;height:36px"></x-icon>
+<p style="font-size:28px;color:#4A5568">Ces capacités peuvent se combiner dans une même solution CRM.</p>
+</div>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;text-align:right;color:#8A97AB">4 / 12</p>
+<aside>On peut distinguer trois grandes formes d’IA dans un CRM, chacune résumée par un verbe. L’IA prédictive anticipe : par exemple, elle estime la probabilité qu’un prospect devienne client, ce qui aide les commerciaux à prioriser. L’IA générative produit du contenu : un brouillon de réponse, un résumé d’échange, un e-mail. L’IA agentique va plus loin : elle agit. Elle consulte un dossier et exécute une action, mais uniquement celles qu’on l’a autorisée à faire. Dans la pratique, ces trois capacités se combinent souvent dans un même outil, et c’est l’IA agentique qui sera au cœur de notre étude de cas.</aside>
+</section>
+<section id="usages" data-transition="fade" style="background:#FDFDFC;font-family:'Inter', Arial, sans-serif;color:#0E2341;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:100px;width:1000px;font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2563EB">Partie 1 · Comprendre</p>
+<h2 style="position:absolute;left:128px;top:144px;width:1664px;font-size:64px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#0E2341">Les principaux usages dans l’entreprise</h2>
+<p style="position:absolute;left:168px;top:290px;width:400px;font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#8A97AB">Service</p>
+<p style="position:absolute;left:628px;top:290px;width:800px;font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#8A97AB">Exemples d’utilisation</p>
+<div data-build-in="rise 1 auto" style="position:absolute;left:128px;top:340px;width:1664px;display:flex;flex-direction:row;align-items:center;gap:40px;background:#F6F8FB;padding:32px 40px;border-radius:20px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:16px;width:420px;flex:none"><x-icon name="Chart" style="color:#2563EB;width:44px;height:44px"></x-icon><h3 style="font-size:36px;font-weight:700;line-height:1.2;color:#0E2341">Ventes</h3></div>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#4A5568">Prioriser les prospects, préparer les rendez-vous</p>
+</div>
+<div data-build-in="rise 2 auto" style="position:absolute;left:128px;top:480px;width:1664px;display:flex;flex-direction:row;align-items:center;gap:40px;background:#F6F8FB;padding:32px 40px;border-radius:20px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:16px;width:420px;flex:none"><x-icon name="PaperPlane" style="color:#2563EB;width:44px;height:44px"></x-icon><h3 style="font-size:36px;font-weight:700;line-height:1.2;color:#0E2341">Marketing</h3></div>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#4A5568">Adapter les messages, analyser les comportements</p>
+</div>
+<div data-build-in="pop 3 auto" style="position:absolute;left:128px;top:620px;width:1664px;display:flex;flex-direction:row;align-items:center;gap:40px;background:#2563EB;padding:36px 40px;border-radius:20px;box-shadow:0px 24px 60px rgba(37,99,235,0.30)">
+<div style="display:flex;flex-direction:row;align-items:center;gap:16px;width:420px;flex:none"><x-icon name="Chat" style="color:#F7FAFF;width:44px;height:44px"></x-icon><h3 style="font-size:36px;font-weight:700;line-height:1.2;color:#F7FAFF">Service client</h3></div>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#EAF1FE">Résumer les demandes, assister les réponses, orienter les dossiers</p>
+<p style="flex:none;font-size:24px;font-weight:700;color:#1E4FC2;background:#FEFEFD;padding:8px 20px;border-radius:999px;white-space:nowrap">Étude de cas</p>
+</div>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;text-align:right;color:#8A97AB">5 / 12</p>
+<aside>Concrètement, où l’IA intervient-elle ? Côté ventes, elle aide à prioriser les prospects les plus prometteurs et à préparer les rendez-vous. Côté marketing, elle adapte les messages selon les profils et analyse les comportements des clients. Côté service client, elle résume les demandes, propose des réponses et oriente les dossiers vers la bonne personne. C’est ce dernier domaine, le service client, que nous allons approfondir avec notre étude de cas.</aside>
+</section>
+<section id="fonctionnement" data-transition="push" style="background:#F6F8FB;font-family:'Inter', Arial, sans-serif;color:#0E2341;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:100px;width:1000px;font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2563EB">Partie 1 · Comprendre</p>
+<h2 style="position:absolute;left:128px;top:144px;width:1664px;font-size:64px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#0E2341">Le fonctionnement d’une IA connectée au CRM</h2>
+<div data-build-in="rise 1 auto" style="position:absolute;left:128px;top:410px;width:340px;height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#FEFEFD;border:2px solid #2563EB;border-radius:20px">
+<x-icon name="Chat" style="color:#2563EB;width:40px;height:40px"></x-icon>
+<p style="font-size:28px;font-weight:700;color:#0E2341">Demande du client</p>
+</div>
+<x-connector data-build-in="fade 2 auto" x1="468" y1="470" x2="760" y2="470" head="end" style="color:#2563EB;border-width:3px"></x-connector>
+<p data-build-in="fade 3 auto" style="position:absolute;left:478px;top:416px;width:272px;font-size:24px;text-align:center;color:#6A7A93">question</p>
+<div data-build-in="pop 4 auto" style="position:absolute;left:760px;top:370px;width:400px;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#0E2341;border-radius:28px;box-shadow:0px 24px 60px rgba(14,35,65,0.28)">
+<x-icon name="Lightning" style="color:#7FA6F5;width:56px;height:56px"></x-icon>
+<h3 style="font-size:36px;font-weight:700;line-height:1.2;color:#F3F6FB">Agent IA</h3>
+<p style="font-size:24px;color:#A9BCD8">Comprend, raisonne, agit</p>
+</div>
+<x-connector data-build-in="fade 5 auto" x1="960" y1="570" x2="690" y2="680" head="both" style="color:#9DB5E8;border-width:2px"></x-connector>
+<x-connector data-build-in="fade 6 auto" x1="960" y1="570" x2="960" y2="680" head="both" style="color:#9DB5E8;border-width:2px"></x-connector>
+<x-connector data-build-in="fade 7 auto" x1="960" y1="570" x2="1230" y2="680" head="both" style="color:#9DB5E8;border-width:2px"></x-connector>
+<p data-build-in="fade 8 auto" style="position:absolute;left:128px;top:716px;width:400px;font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8A97AB">Données et outils autorisés</p>
+<div data-build-in="rise 9 auto" style="position:absolute;left:560px;top:680px;width:800px;height:110px;display:flex;flex-direction:row;gap:20px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:#E4ECFD;border-radius:18px"><x-icon name="Database" style="color:#1E4FC2;width:36px;height:36px"></x-icon><p style="font-size:24px;font-weight:700;color:#0E2341">Fiche client</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:#E4ECFD;border-radius:18px"><x-icon name="Book" style="color:#1E4FC2;width:36px;height:36px"></x-icon><p style="font-size:24px;font-weight:700;color:#0E2341">Commandes</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:#E4ECFD;border-radius:18px"><x-icon name="Globe" style="color:#1E4FC2;width:36px;height:36px"></x-icon><p style="font-size:24px;font-weight:700;color:#0E2341">Transporteur</p></div>
+</div>
+<x-connector data-build-in="fade 10 auto" x1="1160" y1="470" x2="1452" y2="470" head="end" style="color:#2563EB;border-width:3px"></x-connector>
+<p data-build-in="fade 11 auto" style="position:absolute;left:1170px;top:416px;width:272px;font-size:24px;text-align:center;color:#6A7A93">réponse</p>
+<div data-build-in="rise 12 auto" style="position:absolute;left:1452px;top:410px;width:340px;height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#FEFEFD;border:2px solid #2563EB;border-radius:20px">
+<x-icon name="PaperPlane" style="color:#2563EB;width:40px;height:40px"></x-icon>
+<p style="font-size:28px;font-weight:700;color:#0E2341">Réponse ou action</p>
+</div>
+<x-connector data-build-in="fade 13 auto" x1="1160" y1="552" x2="1622" y2="640" route="hv" head="end" style="color:#D9692B;border-width:2px;border-style:dashed"></x-connector>
+<p data-build-in="fade 14 auto" style="position:absolute;left:1180px;top:564px;width:260px;font-size:24px;color:#B4531A">cas complexe</p>
+<div data-build-in="rise 15 auto" style="position:absolute;left:1452px;top:640px;width:340px;height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#FFF4EC;border:2px dashed #D9692B;border-radius:20px">
+<x-icon name="Users" style="color:#B4531A;width:40px;height:40px"></x-icon>
+<p style="font-size:28px;font-weight:700;color:#0E2341">Conseiller humain</p>
+</div>
+<iframe class="embed" data-embed="1" sandbox="allow-scripts" title="" aria-hidden="true" tabindex="-1" style="position:absolute;left:128px;top:300px;width:1664px;height:520px"></iframe>
+<p data-build-in="fade 16 auto" style="position:absolute;left:128px;top:850px;width:1664px;font-size:28px;font-style:italic;text-align:center;color:#4A5568">Les informations accessibles et les actions possibles dépendent de la configuration.</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;text-align:right;color:#8A97AB">6 / 12</p>
+<aside>Comment ça marche concrètement ? Le client envoie sa demande. L’agent IA la comprend, puis va chercher les informations dont il a besoin dans les sources auxquelles on lui a donné accès : la fiche client dans le CRM, le système de commandes, et éventuellement le transporteur via une connexion (API). Il formule ensuite une réponse, ou exécute une action. Si la situation est trop complexe ou sensible, il transfère le dossier à un conseiller humain. Point important : l’agent ne voit que ce qu’on lui autorise à voir. Par exemple, pour connaître le statut de livraison, il faut que le CRM soit connecté au système du transporteur.</aside>
+</section>
+<section id="agentforce" data-transition="fade" style="background:#FDFDFC;font-family:'Inter', Arial, sans-serif;color:#0E2341;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:100px;width:1000px;font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2563EB">Partie 2 · Agentforce</p>
+<h2 style="position:absolute;left:128px;top:144px;width:1664px;font-size:64px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#0E2341">Agentforce dans Salesforce</h2>
+<p data-build-in="rise 1 auto" style="position:absolute;left:128px;top:244px;width:1664px;font-size:30px;line-height:1.4;color:#4A5568">Agentforce permet de configurer des agents IA qui utilisent des données et des actions pour accomplir des tâches dans un périmètre défini.</p>
+<div data-build-in="rise 2 auto" style="position:absolute;left:128px;top:360px;width:980px;display:flex;flex-direction:column;overflow:hidden;background:#FEFEFD;border:1px solid #DCE3EE;border-radius:20px;box-shadow:0px 24px 60px rgba(14,35,65,0.12)">
+<div style="display:flex;flex-direction:row;align-items:center;gap:12px;background:#EEF2F8;padding:16px 28px">
+<x-shape kind="ellipse" style="background:#C5CEDB;width:16px;height:16px"></x-shape>
+<x-shape kind="ellipse" style="background:#C5CEDB;width:16px;height:16px"></x-shape>
+<x-shape kind="ellipse" style="background:#C5CEDB;width:16px;height:16px"></x-shape>
+<p style="font-size:24px;color:#6A7A93">Configuration d’un agent (illustration)</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:24px;padding:32px 40px">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:12px"><div style="width:36px;height:36px;flex:none;display:flex;align-items:center;justify-content:center;background:#2563EB;border-radius:50%"><p style="font-size:24px;font-weight:700;color:#F7FAFF">1</p></div><p style="font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#2563EB">Rôle</p></div>
+<p style="font-size:26px;line-height:1.4;color:#0E2341;background:#F6F8FB;border:1px solid #E3E8F0;border-radius:12px;padding:16px 24px">Agent de service client : informer sur le suivi des commandes.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:12px"><div style="width:36px;height:36px;flex:none;display:flex;align-items:center;justify-content:center;background:#2563EB;border-radius:50%"><p style="font-size:24px;font-weight:700;color:#F7FAFF">2</p></div><p style="font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#2563EB">Données</p></div>
+<div style="display:flex;flex-direction:row;flex-wrap:wrap;gap:12px">
+<p style="font-size:24px;font-weight:600;color:#1E4FC2;background:#E4ECFD;padding:6px 18px;border-radius:999px">Contacts</p>
+<p style="font-size:24px;font-weight:600;color:#1E4FC2;background:#E4ECFD;padding:6px 18px;border-radius:999px">Commandes</p>
+<p style="font-size:24px;font-weight:600;color:#1E4FC2;background:#E4ECFD;padding:6px 18px;border-radius:999px">Suivi de livraison</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;flex-direction:row;align-items:center;gap:12px"><div style="width:36px;height:36px;flex:none;display:flex;align-items:center;justify-content:center;background:#2563EB;border-radius:50%"><p style="font-size:24px;font-weight:700;color:#F7FAFF">3</p></div><p style="font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#2563EB">Actions</p></div>
+<div style="display:flex;flex-direction:row;flex-wrap:wrap;gap:12px">
+<p style="font-size:24px;font-weight:600;color:#F3F6FB;background:#0E2341;padding:6px 18px;border-radius:999px">Retrouver une commande</p>
+<p style="font-size:24px;font-weight:600;color:#F3F6FB;background:#0E2341;padding:6px 18px;border-radius:999px">Consulter le suivi</p>
+<p style="font-size:24px;font-weight:600;color:#F3F6FB;background:#0E2341;padding:6px 18px;border-radius:999px">Transférer à un humain</p>
+</div>
+</div>
+</div>
+</div>
+<div data-build-in="left 3 auto" style="position:absolute;left:1180px;top:370px;width:612px;display:flex;flex-direction:row;align-items:start;gap:20px">
+<div style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;background:#2563EB;border-radius:50%"><p style="font-size:26px;font-weight:700;color:#F7FAFF">1</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:6px"><h3 style="font-size:32px;font-weight:700;line-height:1.2;color:#0E2341">Rôle de l’agent</h3><p style="font-size:26px;line-height:1.4;color:#4A5568">Ce qu’il doit accomplir, et dans quel cadre.</p></div>
+</div>
+<div data-build-in="left 4 auto" style="position:absolute;left:1180px;top:510px;width:612px;display:flex;flex-direction:row;align-items:start;gap:20px">
+<div style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;background:#2563EB;border-radius:50%"><p style="font-size:26px;font-weight:700;color:#F7FAFF">2</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:6px"><h3 style="font-size:32px;font-weight:700;line-height:1.2;color:#0E2341">Informations accessibles</h3><p style="font-size:26px;line-height:1.4;color:#4A5568">Les données du CRM et des systèmes connectés.</p></div>
+</div>
+<div data-build-in="left 5 auto" style="position:absolute;left:1180px;top:650px;width:612px;display:flex;flex-direction:row;align-items:start;gap:20px">
+<div style="width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;background:#2563EB;border-radius:50%"><p style="font-size:26px;font-weight:700;color:#F7FAFF">3</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:6px"><h3 style="font-size:32px;font-weight:700;line-height:1.2;color:#0E2341">Actions autorisées</h3><p style="font-size:26px;line-height:1.4;color:#4A5568">Les opérations permises, avec escalade vers un humain.</p></div>
+</div>
+<p data-build-in="fade 6 auto" style="position:absolute;left:1180px;top:812px;width:612px;font-size:24px;line-height:1.4;color:#6A7A93;border-top:1px solid #E3E8F0;padding:16px 0px 0px 0px">Équivalents : HubSpot Breeze, Microsoft Dynamics 365 Copilot, Zoho Zia</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;text-align:right;color:#8A97AB">7 / 12</p>
+<aside>Passons à l’application avec Agentforce, la solution de Salesforce pour créer des agents IA. Configurer un agent revient à définir trois choses : son rôle (ici, informer les clients sur le suivi de leurs commandes), les informations auxquelles il a accès (contacts, commandes, suivi de livraison) et les actions qu’il a le droit d’exécuter (retrouver une commande, consulter le suivi, transférer à un humain). Tout ce qui n’est pas autorisé lui est interdit. Nous avons choisi Agentforce comme exemple, mais les autres éditeurs proposent des équivalents : HubSpot avec Breeze, Microsoft avec Copilot dans Dynamics 365, Zoho avec Zia. [À remplacer si possible par une capture de votre propre org Salesforce.]</aside>
+</section>
+<section id="cas-pratique" data-transition="push" style="background:#F6F8FB;font-family:'Inter', Arial, sans-serif;color:#0E2341;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:100px;width:1000px;font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2563EB">Partie 2 · Agentforce</p>
+<h2 style="position:absolute;left:128px;top:144px;width:1360px;font-size:64px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#0E2341">Cas pratique : une commande en retard</h2>
+<p style="position:absolute;left:1532px;top:162px;width:260px;font-size:24px;font-weight:600;text-align:center;color:#4A5568;background:#E9EDF3;padding:8px 16px;border-radius:999px">Scénario illustratif</p>
+<p style="position:absolute;left:128px;top:262px;width:780px;font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#8A97AB">Ce que voit le client</p>
+<p style="position:absolute;left:1000px;top:262px;width:792px;font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#8A97AB">Ce que fait l’agent</p>
+<div style="position:absolute;left:128px;top:310px;width:780px;height:600px;display:flex;flex-direction:column;background:#FEFEFD;border:1px solid #DCE3EE;border-radius:28px;box-shadow:0px 24px 60px rgba(14,35,65,0.10)">
+<div style="display:flex;flex-direction:row;align-items:center;gap:14px;padding:18px 32px;border-bottom:1px solid #E3E8F0">
+<x-shape kind="ellipse" style="background:#2FA36B;width:16px;height:16px"></x-shape>
+<p style="font-size:24px;font-weight:600;color:#4A5568">Assistance client · Agent IA en ligne</p>
+</div>
+</div>
+<div data-build-in="rise 1" style="position:absolute;left:168px;top:390px;width:520px;display:flex;flex-direction:column;gap:6px;background:#EEF2F8;padding:20px 28px;border-radius:24px 24px 24px 6px">
+<p style="font-size:24px;color:#6A7A93">Client</p>
+<p style="font-size:28px;font-weight:500;line-height:1.35;color:#0E2341">Où est ma commande ? Elle devait arriver hier.</p>
+</div>
+<x-connector data-build-in="fade 2 auto" x1="916" y1="418" x2="996" y2="418" head="end" style="color:#9DB5E8;border-width:2px;border-style:dashed"></x-connector>
+<div data-build-in="left 3 auto" style="position:absolute;left:1000px;top:390px;width:792px;display:flex;flex-direction:row;align-items:start;gap:24px">
+<div style="width:56px;height:56px;flex:none;display:flex;align-items:center;justify-content:center;background:#2563EB;border-radius:50%"><p style="font-size:26px;font-weight:700;color:#F7FAFF">1</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:6px"><h3 style="font-size:32px;font-weight:700;line-height:1.2;color:#0E2341">Vérifier et retrouver la commande</h3><p style="font-size:26px;line-height:1.4;color:#4A5568">Identification du client, puis recherche dans le CRM.</p></div>
+</div>
+<div data-build-in="rise 4" style="position:absolute;left:348px;top:540px;width:520px;display:flex;flex-direction:column;gap:6px;background:#2563EB;padding:20px 28px;border-radius:24px 24px 6px 24px">
+<p style="font-size:24px;color:#CFE0FF">Agent IA</p>
+<p style="font-size:28px;font-weight:500;line-height:1.35;color:#F7FAFF">Votre colis est au centre de tri. Livraison prévue demain avant 13 h.</p>
+</div>
+<x-connector data-build-in="fade 5 auto" x1="916" y1="568" x2="996" y2="568" head="end" style="color:#9DB5E8;border-width:2px;border-style:dashed"></x-connector>
+<div data-build-in="left 6 auto" style="position:absolute;left:1000px;top:540px;width:792px;display:flex;flex-direction:row;align-items:start;gap:24px">
+<div style="width:56px;height:56px;flex:none;display:flex;align-items:center;justify-content:center;background:#2563EB;border-radius:50%"><p style="font-size:26px;font-weight:700;color:#F7FAFF">2</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:6px"><h3 style="font-size:32px;font-weight:700;line-height:1.2;color:#0E2341">Consulter le statut de livraison</h3><p style="font-size:26px;line-height:1.4;color:#4A5568">Réponse fondée sur le suivi réellement disponible.</p></div>
+</div>
+<div data-build-in="rise 7" style="position:absolute;left:348px;top:730px;width:520px;display:flex;flex-direction:column;gap:6px;background:#2563EB;padding:20px 28px;border-radius:24px 24px 6px 24px">
+<p style="font-size:24px;color:#CFE0FF">Agent IA</p>
+<p style="font-size:28px;font-weight:500;line-height:1.35;color:#F7FAFF">Souhaitez-vous être mis en relation avec un conseiller ?</p>
+</div>
+<x-connector data-build-in="fade 8 auto" x1="916" y1="758" x2="996" y2="758" head="end" style="color:#9DB5E8;border-width:2px;border-style:dashed"></x-connector>
+<div data-build-in="left 9 auto" style="position:absolute;left:1000px;top:730px;width:792px;display:flex;flex-direction:row;align-items:start;gap:24px">
+<div style="width:56px;height:56px;flex:none;display:flex;align-items:center;justify-content:center;background:#D9692B;border-radius:50%"><p style="font-size:26px;font-weight:700;color:#FFFAF5">3</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:6px"><h3 style="font-size:32px;font-weight:700;line-height:1.2;color:#0E2341">Appliquer la procédure ou transférer</h3><p style="font-size:26px;line-height:1.4;color:#4A5568">Selon les règles : geste commercial ou conseiller humain.</p></div>
+</div>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;text-align:right;color:#8A97AB">8 / 12</p>
+<aside>Slide clé : prévoir environ deux minutes. Chaque clic fait apparaître un message et l’étape correspondante. Clic 1 : le client demande où est sa commande. L’agent vérifie d’abord son identité, puis retrouve la commande dans le CRM. Clic 2 : l’agent consulte le statut de livraison et répond à partir du suivi réellement disponible, sans inventer. Clic 3 : selon la procédure définie, il propose une solution ou transfère vers un conseiller humain. Préciser que c’est un scénario illustratif. Si vous faites une démo dans une org Salesforce, montrez uniquement ce que vous avez réellement configuré et testé.</aside>
+</section>
+<section id="benefices" data-transition="fade" style="background:#FDFDFC;font-family:'Inter', Arial, sans-serif;color:#0E2341;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:100px;width:1000px;font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2563EB">Partie 3 · Évaluer</p>
+<h2 style="position:absolute;left:128px;top:144px;width:1664px;font-size:64px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#0E2341">Les bénéfices et leur mesure</h2>
+<p style="position:absolute;left:168px;top:280px;width:600px;font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#8A97AB">Bénéfice attendu</p>
+<p style="position:absolute;left:1032px;top:280px;width:700px;font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#8A97AB">Indicateur</p>
+<div data-build-in="rise 1 auto" style="position:absolute;left:128px;top:330px;width:1664px;display:flex;flex-direction:row;align-items:center;gap:24px;background:#F6F8FB;padding:28px 40px;border-radius:18px">
+<x-icon name="Clock" style="color:#2563EB;width:44px;height:44px"></x-icon>
+<p style="flex:1;font-size:32px;font-weight:700;color:#0E2341">Répondre plus rapidement</p>
+<x-shape kind="arrow-right" style="background:#9DB5E8;width:56px;height:28px"></x-shape>
+<p style="width:700px;flex:none;font-size:32px;font-weight:600;color:#1E4FC2">Délai de première réponse</p>
+</div>
+<div data-build-in="rise 2 auto" style="position:absolute;left:128px;top:450px;width:1664px;display:flex;flex-direction:row;align-items:center;gap:24px;background:#F6F8FB;padding:28px 40px;border-radius:18px">
+<x-icon name="Lightning" style="color:#2563EB;width:44px;height:44px"></x-icon>
+<p style="flex:1;font-size:32px;font-weight:700;color:#0E2341">Faciliter le traitement</p>
+<x-shape kind="arrow-right" style="background:#9DB5E8;width:56px;height:28px"></x-shape>
+<p style="width:700px;flex:none;font-size:32px;font-weight:600;color:#1E4FC2">Temps de traitement par demande</p>
+</div>
+<div data-build-in="rise 3 auto" style="position:absolute;left:128px;top:570px;width:1664px;display:flex;flex-direction:row;align-items:center;gap:24px;background:#F6F8FB;padding:28px 40px;border-radius:18px">
+<x-icon name="CheckCircle" style="color:#2563EB;width:44px;height:44px"></x-icon>
+<p style="flex:1;font-size:32px;font-weight:700;color:#0E2341">Résoudre correctement</p>
+<x-shape kind="arrow-right" style="background:#9DB5E8;width:56px;height:28px"></x-shape>
+<p style="width:700px;flex:none;font-size:32px;font-weight:600;color:#1E4FC2">Taux de résolution et de réouverture</p>
+</div>
+<div data-build-in="rise 4 auto" style="position:absolute;left:128px;top:690px;width:1664px;display:flex;flex-direction:row;align-items:center;gap:24px;background:#F6F8FB;padding:28px 40px;border-radius:18px">
+<x-icon name="ThumbsUp" style="color:#2563EB;width:44px;height:44px"></x-icon>
+<p style="flex:1;font-size:32px;font-weight:700;color:#0E2341">Améliorer l’expérience</p>
+<x-shape kind="arrow-right" style="background:#9DB5E8;width:56px;height:28px"></x-shape>
+<p style="width:700px;flex:none;font-size:32px;font-weight:600;color:#1E4FC2">Satisfaction après interaction</p>
+</div>
+<div data-build-in="fade 5 auto" style="position:absolute;left:128px;top:840px;width:1664px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:16px">
+<x-icon name="Chart" style="color:#2563EB;width:36px;height:36px"></x-icon>
+<p style="font-size:28px;color:#4A5568">Comparer avant et après le déploiement, sur le même périmètre.</p>
+</div>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;text-align:right;color:#8A97AB">9 / 12</p>
+<aside>Quels bénéfices attendre ? Plutôt que d’affirmer que l’IA « améliore tout », on associe chaque bénéfice à un indicateur mesurable. Répondre plus vite : on mesure le délai de première réponse. Faciliter le traitement : le temps passé par demande. Résoudre correctement : le taux de résolution, et surtout le taux de réouverture, qui montre si la réponse était vraiment bonne. Améliorer l’expérience : la satisfaction mesurée après l’interaction. Le bon réflexe : comparer ces indicateurs avant et après le déploiement, sur le même périmètre. On n’affiche des chiffres que si on a une source ou de vraies mesures.</aside>
+</section>
+<section id="risques" data-transition="fade" style="background:#FFF8F2;font-family:'Inter', Arial, sans-serif;color:#0E2341;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:100px;width:1000px;font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#B4531A">Partie 3 · Évaluer</p>
+<h2 style="position:absolute;left:128px;top:144px;width:1664px;font-size:64px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#0E2341">Les limites et les risques</h2>
+<p style="position:absolute;left:176px;top:280px;width:600px;font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#9A6A4E">Risque</p>
+<p style="position:absolute;left:1032px;top:280px;width:700px;font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#9A6A4E">Mesure de maîtrise</p>
+<div data-build-in="left 1 auto" style="position:absolute;left:128px;top:330px;width:1664px;display:flex;flex-direction:row;align-items:center;gap:24px;background:#FEFEFD;padding:22px 40px;border-radius:16px;border-left:8px solid #D9692B">
+<x-icon name="Warning" style="color:#D9692B;width:40px;height:40px"></x-icon>
+<p style="flex:1;font-size:30px;font-weight:700;color:#0E2341">Réponse incorrecte</p>
+<x-shape kind="arrow-right" style="background:#E8B896;width:52px;height:26px"></x-shape>
+<p style="width:700px;flex:none;font-size:30px;color:#4A5568">Tests et transfert à un conseiller</p>
+</div>
+<div data-build-in="left 2 auto" style="position:absolute;left:128px;top:436px;width:1664px;display:flex;flex-direction:row;align-items:center;gap:24px;background:#FEFEFD;padding:22px 40px;border-radius:16px;border-left:8px solid #D9692B">
+<x-icon name="Warning" style="color:#D9692B;width:40px;height:40px"></x-icon>
+<p style="flex:1;font-size:30px;font-weight:700;color:#0E2341">Données obsolètes</p>
+<x-shape kind="arrow-right" style="background:#E8B896;width:52px;height:26px"></x-shape>
+<p style="width:700px;flex:none;font-size:30px;color:#4A5568">Mise à jour et contrôle des sources</p>
+</div>
+<div data-build-in="left 3 auto" style="position:absolute;left:128px;top:542px;width:1664px;display:flex;flex-direction:row;align-items:center;gap:24px;background:#FEFEFD;padding:22px 40px;border-radius:16px;border-left:8px solid #D9692B">
+<x-icon name="Warning" style="color:#D9692B;width:40px;height:40px"></x-icon>
+<p style="flex:1;font-size:30px;font-weight:700;color:#0E2341">Accès excessif aux informations</p>
+<x-shape kind="arrow-right" style="background:#E8B896;width:52px;height:26px"></x-shape>
+<p style="width:700px;flex:none;font-size:30px;color:#4A5568">Droits d’accès limités</p>
+</div>
+<div data-build-in="left 4 auto" style="position:absolute;left:128px;top:648px;width:1664px;display:flex;flex-direction:row;align-items:center;gap:24px;background:#FEFEFD;padding:22px 40px;border-radius:16px;border-left:8px solid #D9692B">
+<x-icon name="Warning" style="color:#D9692B;width:40px;height:40px"></x-icon>
+<p style="flex:1;font-size:30px;font-weight:700;color:#0E2341">Action inadaptée</p>
+<x-shape kind="arrow-right" style="background:#E8B896;width:52px;height:26px"></x-shape>
+<p style="width:700px;flex:none;font-size:30px;color:#4A5568">Validation humaine des actions sensibles</p>
+</div>
+<div data-build-in="left 5 auto" style="position:absolute;left:128px;top:754px;width:1664px;display:flex;flex-direction:row;align-items:center;gap:24px;background:#FEFEFD;padding:22px 40px;border-radius:16px;border-left:8px solid #D9692B">
+<x-icon name="Lock" style="color:#D9692B;width:40px;height:40px"></x-icon>
+<p style="flex:1;font-size:30px;font-weight:700;color:#0E2341">Non-conformité réglementaire</p>
+<x-shape kind="arrow-right" style="background:#E8B896;width:52px;height:26px"></x-shape>
+<p style="width:700px;flex:none;font-size:30px;color:#4A5568">Respect de la loi 09-08 (CNDP)</p>
+</div>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;text-align:right;color:#8A97AB">10 / 12</p>
+<aside>L’IA n’est pas sans risques, et chaque risque doit avoir sa mesure de maîtrise. Une réponse incorrecte se limite par des tests et par le transfert vers un conseiller. Des données obsolètes donnent de mauvaises réponses : il faut mettre à jour et contrôler les sources. Un accès excessif aux informations se traite par des droits d’accès limités au strict nécessaire. Une action inadaptée, par exemple un remboursement, doit passer par une validation humaine. Enfin, au Maroc, le traitement des données personnelles est encadré par la loi 09-08, sous le contrôle de la CNDP : un agent IA qui manipule des données clients doit la respecter.</aside>
+</section>
+<section id="reussite" data-transition="fade" style="background:#F6F8FB;font-family:'Inter', Arial, sans-serif;color:#0E2341;padding:128px 128px 160px">
+<p style="position:absolute;left:128px;top:100px;width:1000px;font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2563EB">Partie 3 · Évaluer</p>
+<h2 style="position:absolute;left:128px;top:144px;width:1664px;font-size:64px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:#0E2341">Les conditions de réussite</h2>
+<hr style="position:absolute;left:294px;top:487px;width:1332px;border-top:2px dashed #CBD5E3">
+<div data-build-in="rise 1" style="position:absolute;left:134px;top:360px;width:320px;display:flex;flex-direction:column;align-items:center;gap:24px">
+<x-icon name="Lightbulb" style="color:#2563EB;width:56px;height:56px"></x-icon>
+<div style="width:96px;height:96px;display:flex;align-items:center;justify-content:center;background:#2563EB;border-radius:50%;box-shadow:0px 0px 0px 10px #E4ECFD"><p style="font-size:40px;font-weight:800;color:#F7FAFF">1</p></div>
+<h3 style="font-size:30px;font-weight:600;line-height:1.25;text-align:center;color:#0E2341">Choisir un besoin métier précis</h3>
+</div>
+<x-connector data-build-in="fade 2" x1="354" y1="488" x2="567" y2="488" head="end" style="color:#2563EB;border-width:4px"></x-connector>
+<div data-build-in="rise 3 auto" style="position:absolute;left:467px;top:360px;width:320px;display:flex;flex-direction:column;align-items:center;gap:24px">
+<x-icon name="Database" style="color:#2563EB;width:56px;height:56px"></x-icon>
+<div style="width:96px;height:96px;display:flex;align-items:center;justify-content:center;background:#2563EB;border-radius:50%;box-shadow:0px 0px 0px 10px #E4ECFD"><p style="font-size:40px;font-weight:800;color:#F7FAFF">2</p></div>
+<h3 style="font-size:30px;font-weight:600;line-height:1.25;text-align:center;color:#0E2341">Préparer les données et les connexions</h3>
+</div>
+<x-connector data-build-in="fade 4" x1="687" y1="488" x2="900" y2="488" head="end" style="color:#2563EB;border-width:4px"></x-connector>
+<div data-build-in="rise 5 auto" style="position:absolute;left:800px;top:360px;width:320px;display:flex;flex-direction:column;align-items:center;gap:24px">
+<x-icon name="Key" style="color:#2563EB;width:56px;height:56px"></x-icon>
+<div style="width:96px;height:96px;display:flex;align-items:center;justify-content:center;background:#2563EB;border-radius:50%;box-shadow:0px 0px 0px 10px #E4ECFD"><p style="font-size:40px;font-weight:800;color:#F7FAFF">3</p></div>
+<h3 style="font-size:30px;font-weight:600;line-height:1.25;text-align:center;color:#0E2341">Définir les responsabilités et les autorisations</h3>
+</div>
+<x-connector data-build-in="fade 6" x1="1020" y1="488" x2="1233" y2="488" head="end" style="color:#2563EB;border-width:4px"></x-connector>
+<div data-build-in="rise 7 auto" style="position:absolute;left:1133px;top:360px;width:320px;display:flex;flex-direction:column;align-items:center;gap:24px">
+<x-icon name="Tool" style="color:#2563EB;width:56px;height:56px"></x-icon>
+<div style="width:96px;height:96px;display:flex;align-items:center;justify-content:center;background:#2563EB;border-radius:50%;box-shadow:0px 0px 0px 10px #E4ECFD"><p style="font-size:40px;font-weight:800;color:#F7FAFF">4</p></div>
+<h3 style="font-size:30px;font-weight:600;line-height:1.25;text-align:center;color:#0E2341">Tester sur un périmètre limité</h3>
+</div>
+<x-connector data-build-in="fade 8" x1="1353" y1="488" x2="1566" y2="488" head="end" style="color:#2563EB;border-width:4px"></x-connector>
+<div data-build-in="rise 9 auto" style="position:absolute;left:1466px;top:360px;width:320px;display:flex;flex-direction:column;align-items:center;gap:24px">
+<x-icon name="GraduationCap" style="color:#2563EB;width:56px;height:56px"></x-icon>
+<div style="width:96px;height:96px;display:flex;align-items:center;justify-content:center;background:#0E2341;border-radius:50%;box-shadow:0px 0px 0px 10px #D6E2FA"><p style="font-size:40px;font-weight:800;color:#F7FAFF">5</p></div>
+<h3 style="font-size:30px;font-weight:600;line-height:1.25;text-align:center;color:#0E2341">Former les utilisateurs et mesurer</h3>
+</div>
+<div data-build-in="rise 10 auto" style="position:absolute;left:128px;top:790px;width:1664px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:16px;background:#0E2341;padding:24px 40px;border-radius:20px">
+<x-icon name="Users" style="color:#7FA6F5;width:40px;height:40px"></x-icon>
+<p style="font-size:28px;color:#F3F6FB">Le rôle du consultant : <b>comprendre le besoin, organiser le processus, accompagner l’utilisation.</b></p>
+</div>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;text-align:right;color:#8A97AB">11 / 12</p>
+<aside>Chaque clic fait avancer la progression d’une étape. Réussir un projet d’IA dans un CRM, ce n’est pas seulement activer une fonctionnalité. Un : choisir un besoin métier précis, comme le suivi des commandes, plutôt que « mettre de l’IA partout ». Deux : préparer les données et les connexions, car l’agent ne vaut que ce que valent ses sources. Trois : définir qui est responsable et ce que l’agent a le droit de faire. Quatre : tester sur un périmètre limité avant de généraliser. Cinq : former les utilisateurs et mesurer les résultats avec les indicateurs vus plus tôt. C’est exactement le travail d’un consultant CRM : comprendre le besoin, organiser le processus et accompagner l’utilisation.</aside>
+</section>
+<section id="conclusion" data-transition="fade" style="background:linear-gradient(135deg, #0b1d38 0%, #13325e 100%)">
+  <iframe class="embed" data-embed="2" sandbox="allow-scripts" title="" aria-hidden="true" tabindex="-1" style="position:absolute; top:0; left:960px; width:960px; height:1080px"></iframe>
+  <p data-build-in="rise 1 auto" style="position:absolute; top:140px; left:128px; width:1000px; font-family:Inter, Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:4px; text-transform:uppercase; color:#7fa6f5">Conclusion</p>
+  <h2 data-build-in="rise 2 auto" style="position:absolute; top:190px; left:128px; width:1120px; font-family:Inter, Arial, sans-serif; font-size:52px; font-weight:700; line-height:1.18; letter-spacing:-1px; color:#f3f6fb">L’IA peut améliorer la relation client lorsque <span style="color:#7fa6f5">les données, les processus et le contrôle humain</span> permettent un usage fiable.</h2>
+  <div data-build-in="rise 3 auto" style="position:absolute; top:520px; left:128px; width:540px; display:flex; flex-direction:row; gap:20px; align-items:start; padding:28px 32px; background:#ffffff0f; border:1px solid #7fa6f559; border-radius:20px">
+    <x-icon name="Database" style="width:40px; height:40px; color:#7fa6f5"></x-icon>
+    <p style="flex:1; font-family:Inter, Arial, sans-serif; font-size:28px; line-height:1.4; color:#dce6f5">Le CRM apporte le contexte client.</p>
+  </div>
+  <div data-build-in="rise 4 auto" style="position:absolute; top:520px; left:708px; width:540px; display:flex; flex-direction:row; gap:20px; align-items:start; padding:28px 32px; background:#ffffff0f; border:1px solid #7fa6f559; border-radius:20px">
+    <x-icon name="Lightning" style="width:40px; height:40px; color:#7fa6f5"></x-icon>
+    <p style="flex:1; font-family:Inter, Arial, sans-serif; font-size:28px; line-height:1.4; color:#dce6f5">L’IA aide à exploiter ce contexte et à réaliser certaines tâches.</p>
+  </div>
+  <div data-build-in="pop 5 auto" style="position:absolute; top:230px; left:1340px; width:452px; display:flex; flex-direction:column; gap:6px; padding:22px 28px; background:#f3f6fb; border-radius:24px 24px 24px 6px; box-shadow:0 24px 60px #0000004d">
+    <p style="font-family:Inter, Arial, sans-serif; font-size:24px; color:#6a7a93">Client</p>
+    <p style="font-family:Inter, Arial, sans-serif; font-size:28px; font-weight:600; line-height:1.3; color:#0e2341">Où est ma commande ?</p>
+  </div>
+  <div data-build-in="pop 6 auto" style="position:absolute; top:400px; left:1340px; width:452px; display:flex; flex-direction:column; gap:6px; padding:22px 28px; background:#2563eb; border-radius:24px 24px 6px 24px; box-shadow:0 24px 60px #0000004d">
+    <p style="font-family:Inter, Arial, sans-serif; font-size:24px; color:#cfe0ff">Agent IA</p>
+    <p style="font-family:Inter, Arial, sans-serif; font-size:26px; line-height:1.35; color:#f7faff">Livraison prévue demain. Un conseiller reste disponible si besoin.</p>
+  </div>
+  <div data-build-in="rise 7 auto" style="position:absolute; top:640px; left:1340px; width:452px; display:flex; flex-direction:row; gap:14px; align-items:center">
+    <x-icon name="CheckCircle" style="width:40px; height:40px; color:#5bd39a"></x-icon>
+    <p style="flex:1; font-family:Inter, Arial, sans-serif; font-size:26px; font-weight:600; color:#a9e5c4">Client informé, demande résolue</p>
+  </div>
+  <h1 data-build-in="scale 8 auto" style="position:absolute; right:247.09px; bottom:83.95px; width:1399.21px; font-family:Inter, Arial, sans-serif; font-size:112px; font-weight:800; line-height:1.05; letter-spacing:-2px; text-align:center; color:#f3f6fb">Merci pour votre attention&nbsp;</h1>
+  <aside>Pour conclure : l’IA peut réellement améliorer la relation client, mais seulement si trois conditions sont réunies : des données fiables, des processus bien définis et un contrôle humain. Le CRM apporte le contexte client ; l’IA aide à exploiter ce contexte et à réaliser certaines tâches. Revenons à notre client du début : sa demande a été traitée rapidement, avec une réponse fondée sur des informations réelles, et un conseiller restait disponible si nécessaire. C’est exactement l’équilibre que nous recherchions dans notre problématique. Merci, nous sommes prêts pour vos questions.</aside>
+</section>
+</div></div>
+<div id="progress"></div>
+<div id="hint"><b>→</b> / <b>Espace</b> / clic : suivant &nbsp;·&nbsp; <b>←</b> : précédent &nbsp;·&nbsp; <b>F</b> : plein écran &nbsp;·&nbsp; <b>G</b> : aller à &nbsp;·&nbsp; <b>N</b> : notes</div>
+<div id="notes"><h4 id="notes-title">Notes</h4><div id="notes-body"></div></div>
+<div id="goto"><form id="goto-form">Aller à la diapositive <input id="goto-input" type="number" min="1"> <span id="goto-max"></span></form></div>
+<script type="application/json" id="embeds">["<style>html,body{margin:0;height:100%;overflow:hidden;background:radial-gradient(circle at 55% 45%, rgba(37,99,235,0.30), rgba(37,99,235,0) 62%)}canvas{display:block;width:100%;height:100%}<\/style><canvas id=\"c\"><\/canvas><script>\nvar c=document.getElementById('c'),g=c.getContext('2d'),W=1,H=1,P=[];\nfunction rs(){W=c.width=c.clientWidth||960;H=c.height=c.clientHeight||1080}\nrs();window.addEventListener('resize',rs);\nfor(var i=0;48>i;i++){P.push({x:Math.random(),y:Math.random(),vx:(Math.random()-0.5)*0.0005,vy:(Math.random()-0.5)*0.0005,r:1.5+Math.random()*2.5})}\nfunction fr(){g.clearRect(0,0,W,H);\nfor(var i=0;P.length>i;i++){var p=P[i];p.x+=p.vx;p.y+=p.vy;if(0>p.x||p.x>1)p.vx*=-1;if(0>p.y||p.y>1)p.vy*=-1}\nfor(var i=0;P.length>i;i++){for(var j=i+1;P.length>j;j++){var a=P[i],b=P[j],d=Math.hypot((a.x-b.x)*W,(a.y-b.y)*H);if(190>d){g.strokeStyle='rgba(127,166,245,'+(0.28*(1-d/190))+')';g.lineWidth=1;g.beginPath();g.moveTo(a.x*W,a.y*H);g.lineTo(b.x*W,b.y*H);g.stroke()}}}\nfor(var i=0;P.length>i;i++){var p=P[i];g.fillStyle='rgba(127,166,245,0.65)';g.beginPath();g.arc(p.x*W,p.y*H,p.r,0,6.3);g.fill()}\nrequestAnimationFrame(fr)}\nfr();\n<\/script>", "<style>html,body{margin:0;height:100%;overflow:hidden;background:transparent}svg{display:block;width:100%;height:100%}<\/style><svg viewBox=\"0 0 1664 520\" preserveAspectRatio=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"632\" y=\"70\" width=\"400\" height=\"200\" rx=\"28\" fill=\"none\" stroke=\"#2563EB\" stroke-width=\"3\" opacity=\"0\">\n<animate attributeName=\"opacity\" values=\"0.7;0\" dur=\"2.2s\" begin=\"7s\" repeatCount=\"indefinite\"/>\n<animate attributeName=\"x\" values=\"632;606\" dur=\"2.2s\" begin=\"7s\" repeatCount=\"indefinite\"/>\n<animate attributeName=\"y\" values=\"70;44\" dur=\"2.2s\" begin=\"7s\" repeatCount=\"indefinite\"/>\n<animate attributeName=\"width\" values=\"400;452\" dur=\"2.2s\" begin=\"7s\" repeatCount=\"indefinite\"/>\n<animate attributeName=\"height\" values=\"200;252\" dur=\"2.2s\" begin=\"7s\" repeatCount=\"indefinite\"/>\n<\/rect>\n<g opacity=\"0\"><circle r=\"18\" fill=\"#2563EB\" opacity=\"0.25\"/><circle r=\"9\" fill=\"#2563EB\"/>\n<animateMotion path=\"M340,170 L632,170\" dur=\"3.6s\" begin=\"8s\" repeatCount=\"indefinite\" calcMode=\"linear\" keyPoints=\"0;1;1\" keyTimes=\"0;0.22;1\"/>\n<animate attributeName=\"opacity\" values=\"1;1;0;0\" keyTimes=\"0;0.22;0.23;1\" dur=\"3.6s\" begin=\"8s\" repeatCount=\"indefinite\"/>\n<\/g>\n<g opacity=\"0\"><circle r=\"16\" fill=\"#7FA6F5\" opacity=\"0.3\"/><circle r=\"8\" fill=\"#1E4FC2\"/>\n<animateMotion path=\"M832,270 L562,380 L832,270\" dur=\"3.6s\" begin=\"8s\" repeatCount=\"indefinite\" calcMode=\"linear\" keyPoints=\"0;0;1;1\" keyTimes=\"0;0.24;0.54;1\"/>\n<animate attributeName=\"opacity\" values=\"0;0;1;1;0;0\" keyTimes=\"0;0.23;0.24;0.54;0.55;1\" dur=\"3.6s\" begin=\"8s\" repeatCount=\"indefinite\"/>\n<\/g>\n<g opacity=\"0\"><circle r=\"16\" fill=\"#7FA6F5\" opacity=\"0.3\"/><circle r=\"8\" fill=\"#1E4FC2\"/>\n<animateMotion path=\"M832,270 L832,380 L832,270\" dur=\"3.6s\" begin=\"8s\" repeatCount=\"indefinite\" calcMode=\"linear\" keyPoints=\"0;0;1;1\" keyTimes=\"0;0.24;0.54;1\"/>\n<animate attributeName=\"opacity\" values=\"0;0;1;1;0;0\" keyTimes=\"0;0.23;0.24;0.54;0.55;1\" dur=\"3.6s\" begin=\"8s\" repeatCount=\"indefinite\"/>\n<\/g>\n<g opacity=\"0\"><circle r=\"16\" fill=\"#7FA6F5\" opacity=\"0.3\"/><circle r=\"8\" fill=\"#1E4FC2\"/>\n<animateMotion path=\"M832,270 L1102,380 L832,270\" dur=\"3.6s\" begin=\"8s\" repeatCount=\"indefinite\" calcMode=\"linear\" keyPoints=\"0;0;1;1\" keyTimes=\"0;0.24;0.54;1\"/>\n<animate attributeName=\"opacity\" values=\"0;0;1;1;0;0\" keyTimes=\"0;0.23;0.24;0.54;0.55;1\" dur=\"3.6s\" begin=\"8s\" repeatCount=\"indefinite\"/>\n<\/g>\n<g opacity=\"0\"><circle r=\"18\" fill=\"#2563EB\" opacity=\"0.25\"/><circle r=\"9\" fill=\"#2563EB\"/>\n<animateMotion path=\"M1032,170 L1324,170\" dur=\"3.6s\" begin=\"8s\" repeatCount=\"indefinite\" calcMode=\"linear\" keyPoints=\"0;0;1;1\" keyTimes=\"0;0.56;0.8;1\"/>\n<animate attributeName=\"opacity\" values=\"0;0;1;1;0;0\" keyTimes=\"0;0.55;0.56;0.8;0.81;1\" dur=\"3.6s\" begin=\"8s\" repeatCount=\"indefinite\"/>\n<\/g>\n<\/svg>", "<style>html,body{margin:0;height:100%;overflow:hidden;background:radial-gradient(circle at 60% 40%, rgba(37,99,235,0.28), rgba(37,99,235,0) 60%)}canvas{display:block;width:100%;height:100%}<\/style><canvas id=\"c\"><\/canvas><script>\nvar c=document.getElementById('c'),g=c.getContext('2d'),W=1,H=1,P=[];\nfunction rs(){W=c.width=c.clientWidth||960;H=c.height=c.clientHeight||1080}\nrs();window.addEventListener('resize',rs);\nfor(var i=0;40>i;i++){P.push({x:Math.random(),y:Math.random(),vx:(Math.random()-0.5)*0.0004,vy:(Math.random()-0.5)*0.0004,r:1.5+Math.random()*2.5})}\nfunction fr(){g.clearRect(0,0,W,H);\nfor(var i=0;P.length>i;i++){var p=P[i];p.x+=p.vx;p.y+=p.vy;if(0>p.x||p.x>1)p.vx*=-1;if(0>p.y||p.y>1)p.vy*=-1}\nfor(var i=0;P.length>i;i++){for(var j=i+1;P.length>j;j++){var a=P[i],b=P[j],d=Math.hypot((a.x-b.x)*W,(a.y-b.y)*H);if(190>d){g.strokeStyle='rgba(127,166,245,'+(0.22*(1-d/190))+')';g.lineWidth=1;g.beginPath();g.moveTo(a.x*W,a.y*H);g.lineTo(b.x*W,b.y*H);g.stroke()}}}\nfor(var i=0;P.length>i;i++){var p=P[i];g.fillStyle='rgba(127,166,245,0.55)';g.beginPath();g.arc(p.x*W,p.y*H,p.r,0,6.3);g.fill()}\nrequestAnimationFrame(fr)}\nfr();\n<\/script>"]</script>
+<script>
+(function(){
+var ICONS={
+Lightning:'<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+Users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+Key:'<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/>',
+Chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+Chart:'<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+Wrench:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+Tool:'<path d="M15 12l-8.5 8.5a2.12 2.12 0 0 1-3-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25a2 2 0 0 1-.55-1.82l.38-1.94-2.13-2.13a7 7 0 0 0-4.95-2.05H9.5l.92.82A6.18 6.18 0 0 1 12.5 8v1.56l2 2h2.47a2 2 0 0 1 1.42.59l1.25 1.25"/>',
+Link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+PaperPlane:'<path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/>',
+Database:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>',
+Book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+Globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+Clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+CheckCircle:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>',
+Check:'<path d="M20 6 9 17l-5-5"/>',
+ThumbsUp:'<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+Warning:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+Lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+Lightbulb:'<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+GraduationCap:'<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+Star:'<path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>',
+Search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>'
+};
+var EMBEDS=JSON.parse(document.getElementById('embeds').textContent);
+var stage=document.getElementById('stage');
+var slides=[].slice.call(document.querySelectorAll('#deck>section'));
+var SVGNS='http://www.w3.org/2000/svg';
+var EXPO='cubic-bezier(.16,1,.3,1)',INOUT='cubic-bezier(.65,0,.35,1)';
+function $$(r,q){return [].slice.call(r.querySelectorAll(q))}
+function A(el,kf,o){if(!el||!el.animate)return null;o.fill=o.fill||'both';return el.animate(kf,o)}
+
+/* ================= 1. convert the slide subset to web elements ================= */
+$$(document,'#deck x-icon').forEach(function(el){
+  el.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+(ICONS[el.getAttribute('name')]||'<circle cx="12" cy="12" r="9"/>')+'</svg>';
+  $$(el,'svg *').forEach(function(p){p.setAttribute('pathLength','1')});
+});
+$$(document,'#deck x-shape').forEach(function(el){
+  var k=el.getAttribute('kind')||'rect';
+  if(k==='ellipse')el.style.borderRadius='50%';
+  else if(k==='rounded')el.style.borderRadius='16px';
+  else if(k==='diamond')el.style.clipPath='polygon(50% 0,100% 50%,50% 100%,0 50%)';
+  else if(k==='arrow-right')el.style.clipPath='polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%)';
+  else if(k==='arrow-left')el.style.clipPath='polygon(100% 30%,40% 30%,40% 0,0 50%,40% 100%,40% 70%,100% 70%)';
+  else if(k==='arrow-up')el.style.clipPath='polygon(30% 100%,30% 40%,0 40%,50% 0,100% 40%,70% 40%,70% 100%)';
+  else if(k==='arrow-down')el.style.clipPath='polygon(30% 0,30% 60%,0 60%,50% 100%,100% 60%,70% 60%,70% 0)';
+  el.setAttribute('data-kind',k);
+});
+$$(document,'#deck hr').forEach(function(el){if(!el.style.borderTop)el.style.borderTop='1px solid '+(el.style.color||'#CBD5E3')});
+function head(g,x,y,dx,dy,color){
+  var L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L,s=16,w=8,bx=x-ux*s,by=y-uy*s;
+  var p=document.createElementNS(SVGNS,'polygon');
+  p.setAttribute('points',x+','+y+' '+(bx-uy*w)+','+(by+ux*w)+' '+(bx+uy*w)+','+(by-ux*w));
+  p.setAttribute('fill',color);p.setAttribute('class','hd');p.style.transformOrigin=x+'px '+y+'px';g.appendChild(p);
+}
+$$(document,'#deck x-connector').forEach(function(el){
+  var n=function(a){return parseFloat(el.getAttribute(a))};
+  var x1=n('x1'),y1=n('y1'),x2=n('x2'),y2=n('y2');
+  if(isNaN(x1)||isNaN(y2)){el.parentNode.removeChild(el);return}
+  var color=el.style.color||'#2563EB',bw=parseFloat(el.style.borderWidth)||2,bs=el.style.borderStyle;
+  var route=el.getAttribute('route')||'straight',hd=el.getAttribute('head')||'end';
+  var pts=[[x1,y1]];
+  if(route==='hv')pts.push([x2,y1]);else if(route==='vh')pts.push([x1,y2]);
+  else if(route==='elbow'){var mx=(x1+x2)/2;pts.push([mx,y1],[mx,y2])}
+  pts.push([x2,y2]);
+  var svg=document.createElementNS(SVGNS,'svg');svg.setAttribute('class','conn');svg.setAttribute('viewBox','0 0 1920 1080');
+  var pl=document.createElementNS(SVGNS,'polyline');
+  pl.setAttribute('points',pts.map(function(p){return p.join(',')}).join(' '));
+  pl.setAttribute('fill','none');pl.setAttribute('stroke',color);pl.setAttribute('stroke-width',bw);pl.setAttribute('stroke-linejoin','round');
+  if(bs==='dashed')pl.setAttribute('stroke-dasharray',(bw*4)+' '+(bw*3));
+  if(bs==='dotted'){pl.setAttribute('stroke-dasharray','0 '+(bw*3));pl.setAttribute('stroke-linecap','round')}
+  svg.appendChild(pl);
+  var a=pts[pts.length-2],b=pts[pts.length-1];
+  if(hd==='end'||hd==='both')head(svg,b[0],b[1],b[0]-a[0],b[1]-a[1],color);
+  if(hd==='both'||hd==='start'){var c=pts[0],d=pts[1];head(svg,c[0],c[1],c[0]-d[0],c[1]-d[1],color)}
+  var xs=pts.map(function(p){return p[0]}),ys=pts.map(function(p){return p[1]});
+  svg._box={x0:Math.min.apply(0,xs)-24,x1:Math.max.apply(0,xs)+24,y0:Math.min.apply(0,ys)-24,y1:Math.max.apply(0,ys)+24,
+            dir:Math.abs(x2-x1)>=Math.abs(y2-y1)?(x2>=x1?'r':'l'):(y2>=y1?'d':'u')};
+  if(el.hasAttribute('data-build-in'))svg.setAttribute('data-build-in',el.getAttribute('data-build-in'));
+  el.parentNode.replaceChild(svg,el);
+});
+
+/* word-split titles (mask reveal) and agent replies (streamed) */
+function splitWords(root,cls){
+  var walk=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null,false),nodes=[],t;
+  while((t=walk.nextNode()))nodes.push(t);
+  nodes.forEach(function(tn){
+    var parts=tn.nodeValue.split(/(\s+)/),frag=document.createDocumentFragment();
+    parts.forEach(function(p){
+      if(!p)return;
+      if(/^\s+$/.test(p)){frag.appendChild(document.createTextNode(p));return}
+      if(cls==='w'){var o=document.createElement('span');o.className='w';var i=document.createElement('span');i.className='wi';i.textContent=p;o.appendChild(i);frag.appendChild(o)}
+      else{var s=document.createElement('span');s.className='sw';s.textContent=p;frag.appendChild(s)}
+    });
+    tn.parentNode.replaceChild(frag,tn);
+  });
+}
+slides.forEach(function(s){
+  $$(s,'h1,h2').forEach(function(h){splitWords(h,'w')});
+  $$(s,'div').forEach(function(d){
+    var ps=[].filter.call(d.children,function(c){return c.tagName==='P'});
+    if(ps.length>=2&&/^Agent IA$/.test(ps[0].textContent.trim())){splitWords(ps[1],'sw');d._agent=ps[1]}
+  });
+});
+
+/* ambient backgrounds: drifting light on light slides */
+function lum(c){var m=(c||'').match(/\d+(\.\d+)?/g);if(!m)return 1;return (0.2126*m[0]+0.7152*m[1]+0.0722*m[2])/255*((m[3]!==undefined)?+m[3]:1)+(m[3]!==undefined?(1-m[3]):0)}
+slides.forEach(function(s){
+  var dark=/gradient/.test(s.style.background)&&lum(getComputedStyle(s).backgroundColor)<0.5;
+  if(/0b1d38|11, 29, 56|#0B1D38/i.test(s.getAttribute('style')))dark=true;
+  s._dark=dark;
+  if(dark)return;
+  var warm=/FFF8F2|255, 248, 242/i.test(s.getAttribute('style'));
+  var amb=document.createElement('div');amb.className='amb';
+  var c1=warm?'rgba(217,105,43,.16)':'rgba(37,99,235,.13)',c2=warm?'rgba(255,170,110,.14)':'rgba(127,166,245,.16)',c3=warm?'rgba(217,105,43,.08)':'rgba(37,99,235,.07)';
+  amb.innerHTML='<i class="a" style="background:radial-gradient(circle,'+c1+',transparent 65%)"></i><i class="b" style="background:radial-gradient(circle,'+c2+',transparent 65%)"></i><i class="c" style="background:radial-gradient(circle,'+c3+',transparent 65%)"></i><b></b>';
+  s.insertBefore(amb,s.firstChild);s._amb=amb;
+});
+
+/* ================= 2. motion vocabulary ================= */
+var FX={
+ fade:[{opacity:0,filter:'blur(10px)'},{opacity:1,filter:'blur(0px)'}],
+ rise:[{opacity:0,translate:'0 70px',filter:'blur(8px)'},{opacity:1,translate:'0 0',filter:'blur(0px)'}],
+ drop:[{opacity:0,translate:'0 -70px',filter:'blur(8px)'},{opacity:1,translate:'0 0',filter:'blur(0px)'}],
+ left:[{opacity:0,translate:'-110px 0',filter:'blur(8px)'},{opacity:1,translate:'0 0',filter:'blur(0px)'}],
+ right:[{opacity:0,translate:'110px 0',filter:'blur(8px)'},{opacity:1,translate:'0 0',filter:'blur(0px)'}],
+ scale:[{opacity:0,scale:.55,filter:'blur(14px)'},{opacity:1,scale:1,filter:'blur(0px)'}],
+ pop:[{opacity:0,scale:.6,filter:'blur(6px)'},{opacity:1,scale:1.05,filter:'blur(0px)',offset:.6},{opacity:1,scale:1}],
+ soft:[{opacity:0,translate:'0 26px'},{opacity:1,translate:'0 0'}]
+};
+var DUR={fade:900,rise:1000,drop:1000,left:1000,right:1000,scale:1100,pop:850,soft:800};
+
+function drawIcons(root,delay){
+  $$(root,'x-icon svg *').forEach(function(p,i){
+    A(p,[{strokeDashoffset:1},{strokeDashoffset:0}],{duration:1100,delay:delay+i*90,easing:INOUT});
+  });
+}
+function drawConn(svg,delay){
+  var b=svg._box,full='inset('+b.y0+'px '+(1920-b.x1)+'px '+(1080-b.y1)+'px '+b.x0+'px)',from;
+  if(b.dir==='r')from='inset('+b.y0+'px '+(1920-b.x0)+'px '+(1080-b.y1)+'px '+b.x0+'px)';
+  else if(b.dir==='l')from='inset('+b.y0+'px '+(1920-b.x1)+'px '+(1080-b.y1)+'px '+b.x1+'px)';
+  else if(b.dir==='d')from='inset('+b.y0+'px '+(1920-b.x1)+'px '+(1080-b.y0)+'px '+b.x0+'px)';
+  else from='inset('+b.y1+'px '+(1920-b.x1)+'px '+(1080-b.y1)+'px '+b.x0+'px)';
+  A(svg,[{opacity:1,clipPath:from},{opacity:1,clipPath:full}],{duration:900,delay:delay,easing:INOUT});
+  $$(svg,'.hd').forEach(function(h){A(h,[{scale:0,opacity:0},{scale:1.35,opacity:1,offset:.6},{scale:1,opacity:1}],{duration:500,delay:delay+700,easing:EXPO})});
+}
+function words(root,delay,stagger){
+  $$(root,'.wi').forEach(function(w,i){
+    A(w,[{translate:'0 115%',rotate:'4deg'},{translate:'0 0',rotate:'0deg'}],{duration:1100,delay:delay+i*(stagger||55),easing:EXPO});
+  });
+}
+function stream(p,delay){
+  $$(p,'.sw').forEach(function(w,i){A(w,[{opacity:0,filter:'blur(4px)'},{opacity:1,filter:'blur(0px)'}],{duration:450,delay:delay+i*70,easing:'ease-out'})});
+}
+function isRound(el){var r=getComputedStyle(el).borderTopLeftRadius;return el.offsetWidth>0&&el.offsetWidth<=130&&Math.abs(el.offsetWidth-el.offsetHeight)<4&&(parseFloat(r)>=el.offsetWidth/2-1||/%/.test(r))}
+function isDarkBox(el){var bg=getComputedStyle(el).backgroundColor;var m=bg.match(/[\d.]+/g);if(!m||(m[3]!==undefined&&+m[3]<.5))return false;return (0.2126*m[0]+0.7152*m[1]+0.0722*m[2])/255<0.45}
+function shine(el,delay){
+  if(el.offsetWidth<200)return;
+  var o=document.createElement('div');o.className='shine';el.appendChild(o);
+  var an=A(o,[{backgroundPosition:'130% 0'},{backgroundPosition:'-30% 0'}],{duration:1400,delay:delay,easing:INOUT,fill:'none'});
+  if(an)an.onfinish=an.oncancel=function(){if(o.parentNode)o.parentNode.removeChild(o)};else o.remove();
+}
+function pulseIfHub(el){
+  $$(el,'div').concat([el]).forEach(function(d){
+    var ic=d.querySelector(':scope > x-icon[name="Lightning"]');
+    if(ic&&isRound(d)&&d.offsetWidth>=80){
+      A(d,[{boxShadow:'0 0 0 0 rgba(37,99,235,.55), 0 0 0 0 rgba(37,99,235,.35)'},{boxShadow:'0 0 0 26px rgba(37,99,235,0), 0 0 0 52px rgba(37,99,235,0)'}],{duration:2200,delay:1200,iterations:Infinity,easing:'ease-out',fill:'none'});
+    }
+  });
+}
+/* cascade the inside of a revealed box */
+function cascade(el,delay){
+  var kids=[].filter.call(el.children,function(c){return !/^(ASIDE|SCRIPT)$/.test(c.tagName)&&!c.classList.contains('shine')});
+  if(kids.length<2&&!(kids[0]&&kids[0].tagName==='DIV'))return;
+  kids.forEach(function(k,i){
+    var d=delay+120+i*90;
+    if(k.tagName==='X-SHAPE'&&/arrow/.test(k.getAttribute('data-kind'))){A(k,[{scale:'0 1',opacity:0},{scale:'1 1',opacity:1}],{duration:700,delay:d,easing:EXPO});k.style.transformOrigin='0 50%';return}
+    if(k.tagName==='DIV'&&isRound(k)){A(k,FX.pop,{duration:800,delay:d,easing:EXPO});return}
+    if(k.tagName==='DIV'&&k.children.length>1&&!k._agent){A(k,FX.soft,{duration:800,delay:d,easing:EXPO});cascade(k,d);return}
+    if(k===el._agent)return;
+    A(k,FX.soft,{duration:800,delay:d,easing:EXPO});
+  });
+}
+function reveal(el,fx,delay,instant){
+  if(instant){el.style.opacity='';return}
+  if(el.tagName==='svg'&&el._box){el.style.opacity='';drawConn(el,delay);return}
+  el.style.opacity='';
+  var hasWords=el.querySelector&&el.querySelector('.wi')&&/^H[12]$/.test(el.tagName);
+  if(hasWords){A(el,[{opacity:0},{opacity:1}],{duration:300,delay:delay});words(el,delay,70);return}
+  A(el,FX[fx]||FX.fade,{duration:DUR[fx]||900,delay:delay,easing:fx==='pop'?'cubic-bezier(.34,1.3,.64,1)':EXPO});
+  if(el.tagName==='DIV'){cascade(el,delay);if(isDarkBox(el)&&getComputedStyle(el).borderTopLeftRadius!=='0px')shine(el,delay+500)}
+  drawIcons(el,delay+250);
+  if(el._agent)stream(el._agent,delay+450);
+  else $$(el,'div').forEach(function(d){if(d._agent)stream(d._agent,delay+450)});
+  if(el.tagName==='H3'||el.tagName==='P'){$$(el,'.wi').length&&words(el,delay)}
+  pulseIfHub(el);
+}
+
+/* ================= 3. per-slide plan: intro elements + click steps ================= */
+slides.forEach(function(s){
+  var items=$$(s,'[data-build-in]').map(function(el,i){
+    var t=el.getAttribute('data-build-in').trim().split(/\s+/);
+    var fx=FX[t[0]]?t[0]:'fade',order=i+1,auto=false;
+    t.slice(1).forEach(function(w){if(w==='auto')auto=true;else if(!isNaN(+w))order=+w});
+    return {el:el,fx:fx,order:order,auto:auto,i:i};
+  }).sort(function(a,b){return a.order-b.order||a.i-b.i});
+  var groups=[[]];
+  items.forEach(function(it){if(!it.auto)groups.push([it]);else groups[groups.length-1].push(it)});
+  s._groups=groups;s._items=items;
+  var isB=function(el){return el.hasAttribute('data-build-in')};
+  s._intro=[].filter.call(s.children,function(c){return !isB(c)&&!/^(ASIDE|IFRAME)$/.test(c.tagName)&&!c.classList.contains('amb')});
+});
+
+function cancelAll(s){(s.getAnimations?s.getAnimations({subtree:true}):[]).forEach(function(a){
+  var el=a.effect&&a.effect.target;if(el&&el.parentNode&&el.parentNode.classList&&el.parentNode.classList.contains('amb'))return;a.cancel()})}
+function playIntro(s,base){
+  var list=s._intro.slice().sort(function(a,b){return (a.offsetTop-b.offsetTop)||(a.offsetLeft-b.offsetLeft)});
+  list=list.filter(function(el){return !el._magic});
+  list.forEach(function(el,i){
+    var d=base+i*110;
+    if(/^H[12]$/.test(el.tagName)){words(el,d,60);return}
+    if(el.tagName==='svg'&&el._box){drawConn(el,d);return}
+    var isFooter=el.offsetTop>900;
+    if(el.tagName==='DIV'&&el.offsetWidth>600&&el.offsetHeight>400){A(el,[{opacity:0,scale:.97,filter:'blur(6px)'},{opacity:1,scale:1,filter:'blur(0px)'}],{duration:1100,delay:d,easing:EXPO});cascade(el,d);return}
+    A(el,isFooter?FX.fade:FX.soft,{duration:900,delay:d,easing:EXPO});
+    if(el.tagName==='DIV')cascade(el,d);
+    drawIcons(el,d+200);
+    if(el.tagName==='DIV'&&isDarkBox(el))shine(el,d+500);
+  });
+  return base+Math.min(list.length,8)*110+250;
+}
+function playGroup(s,g,base){(s._groups[g]||[]).forEach(function(it,k){reveal(it.el,it.fx,(base||0)+k*200)})}
+
+/* ================= 4. embeds start when their slide shows ================= */
+function startEmbeds(s){$$(s,'iframe.embed').forEach(function(f){f.srcdoc=EMBEDS[+f.getAttribute('data-embed')];
+  A(f,[{opacity:0},{opacity:1}],{duration:1600,delay:200,easing:'ease-out'})})}
+function stopEmbeds(s){$$(s,'iframe.embed').forEach(function(f){f.removeAttribute('srcdoc');f.src='about:blank'})}
+
+/* ================= 5. navigation and transitions ================= */
+var cur=-1,step=0;
+function setOn(s,on){s.classList.toggle('on',on)}
+function enter(i,opts){
+  opts=opts||{};
+  var s=slides[i],prev=cur>=0?slides[cur]:null,dir=opts.dir||1;
+  if(!s||s===prev)return;
+  var built=!!opts.built;
+  cancelAll(s);
+  $$(s,'.shine').forEach(function(o){o.remove()});
+  s._items.forEach(function(it){it.el.style.opacity=built?'':'0'});
+  startEmbeds(s);
+  var tr=prev?((dir>0?prev:s).getAttribute('data-transition')||'fade'):'none';
+  var magic=[];
+  if(prev&&tr==='magic'){
+    $$(s,'[id]').forEach(function(el){var o=prev.querySelector('#'+CSS.escape(el.id));if(o&&getComputedStyle(o).opacity!=='0')magic.push([o,el])});
+    if(!magic.length)tr='fade';
+  }
+  setOn(s,true);
+  var D=900;
+  if(prev){
+    var p=prev;
+    if(tr==='push'){
+      A(s,[{translate:(dir>0?'100%':'-100%')+' 0'},{translate:'0 0'}],{duration:D,easing:INOUT,fill:'none'});
+      A(p,[{translate:'0 0',filter:'brightness(1)'},{translate:(dir>0?'-30%':'30%')+' 0',filter:'brightness(.6)'}],{duration:D,easing:INOUT});
+    }else if(tr==='magic'){
+      magic.forEach(function(m){
+        var o=m[0],n=m[1];
+        A(n,[{translate:(o.offsetLeft-n.offsetLeft)+'px '+(o.offsetTop-n.offsetTop)+'px',scale:(o.offsetWidth/n.offsetWidth)+' '+(o.offsetHeight/n.offsetHeight),transformOrigin:'0 0'},{translate:'0 0',scale:'1 1',transformOrigin:'0 0'}],{duration:1100,easing:INOUT,fill:'none'});
+        o.style.visibility='hidden';n._magic=true;
+      });
+      A(s,[{opacity:0},{opacity:1}],{duration:700,easing:'ease',fill:'none'});
+      A(p,[{opacity:1},{opacity:0}],{duration:700,easing:'ease'});
+    }else{
+      A(s,[{opacity:0,scale:1.04,filter:'blur(10px)'},{opacity:1,scale:1,filter:'blur(0px)'}],{duration:D,easing:EXPO,fill:'none'});
+      A(p,[{opacity:1,scale:1,filter:'blur(0px)'},{opacity:0,scale:.97,filter:'blur(8px)'}],{duration:700,easing:'ease-in'});
+    }
+    setTimeout(function(){
+      if(slides[cur]!==p){setOn(p,false);cancelAll(p);stopEmbeds(p);$$(p,'[id]').forEach(function(e){e.style.visibility=''});
+        if(p.getAnimations)p.getAnimations().forEach(function(a){a.cancel()});}
+    },D+100);
+  }
+  cur=i;
+  step=built?s._groups.length:1;
+  if(!built){
+    var base=prev?(tr==='push'?450:350):300;
+    var after=playIntro(s,base);
+    s._intro.forEach(function(el){el._magic=false});
+    playGroup(s,0,after);
+  }
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+  try{history.replaceState(null,'','#'+(i+1))}catch(e){}
+  updateNotes();
+}
+function next(){
+  var s=slides[cur];
+  if(step<s._groups.length){playGroup(s,step,0);step++;return}
+  if(cur<slides.length-1)enter(cur+1,{dir:1});
+}
+function prev(){if(cur>0)enter(cur-1,{dir:-1,built:true})}
+function go(n){n=Math.max(0,Math.min(slides.length-1,n));if(n!==cur)enter(n,{dir:n>cur?1:-1,built:n<cur})}
+
+/* ================= 6. notes, goto, fullscreen, input ================= */
+var notes=document.getElementById('notes');
+function updateNotes(){var a=slides[cur].querySelector('aside');
+  document.getElementById('notes-title').textContent='Notes · diapositive '+(cur+1)+' / '+slides.length;
+  document.getElementById('notes-body').textContent=a?a.textContent:'—'}
+function fs(){var d=document,e=d.documentElement;if(!d.fullscreenElement&&!d.webkitFullscreenElement){(e.requestFullscreen||e.webkitRequestFullscreen).call(e)}else{(d.exitFullscreen||d.webkitExitFullscreen).call(d)}}
+var gotoBox=document.getElementById('goto'),gotoIn=document.getElementById('goto-input');
+document.getElementById('goto-max').textContent='/ '+slides.length;gotoIn.max=slides.length;
+function openGoto(){gotoBox.classList.add('show');gotoIn.value=cur+1;setTimeout(function(){gotoIn.select()},10)}
+document.getElementById('goto-form').addEventListener('submit',function(e){e.preventDefault();var v=parseInt(gotoIn.value,10);gotoBox.classList.remove('show');if(v)go(v-1)});
+gotoBox.addEventListener('click',function(e){if(e.target===gotoBox)gotoBox.classList.remove('show')});
+document.addEventListener('keydown',function(e){
+  if(gotoBox.classList.contains('show')){if(e.key==='Escape')gotoBox.classList.remove('show');return}
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  var k=e.key;
+  if(k==='ArrowRight'||k==='ArrowDown'||k===' '||k==='PageDown'||k==='Enter'){e.preventDefault();next()}
+  else if(k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev()}
+  else if(k==='Home'){go(0)}else if(k==='End'){go(slides.length-1)}
+  else if(k==='f'||k==='F'){fs()}
+  else if(k==='g'||k==='G'){e.preventDefault();openGoto()}
+  else if(k==='n'||k==='N'){notes.classList.toggle('show')}
+  hint();
+});
+document.addEventListener('click',function(e){
+  if(notes.contains(e.target)||gotoBox.contains(e.target))return;
+  if(e.clientX<window.innerWidth*0.15)prev();else next();
+});
+var tx=null;
+document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+document.addEventListener('touchend',function(e){if(tx===null)return;var dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)>50){e.preventDefault();dx<0?next():prev()}});
+
+/* parallax on ambient layers + idle cursor */
+var idleT;
+document.addEventListener('mousemove',function(e){
+  var x=e.clientX/window.innerWidth-.5,y=e.clientY/window.innerHeight-.5,s=slides[cur];
+  if(s){if(s._amb)s._amb.style.translate=(x*-36)+'px '+(y*-24)+'px';
+    $$(s,'iframe.embed').forEach(function(f){f.style.translate=(x*-28)+'px '+(y*-18)+'px'});}
+  document.body.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(function(){document.body.classList.add('idle')},2500);
+});
+
+/* scale to fit */
+function fit(){var k=Math.min(window.innerWidth/1920,window.innerHeight/1080);stage.style.transform='translate(-50%,-50%) scale('+k+')'}
+window.addEventListener('resize',fit);fit();
+var hintEl=document.getElementById('hint'),ht;
+function hint(){clearTimeout(ht);ht=setTimeout(function(){hintEl.classList.add('hide')},3500)}
+hint();
+var start=parseInt((location.hash||'').replace('#',''),10);
+function boot(){enter(start>0&&start<=slides.length?start-1:0)}
+if(document.fonts&&document.fonts.ready){Promise.race([document.fonts.ready,new Promise(function(r){setTimeout(r,1500)})]).then(boot)}else boot();
+})();
+</script>
+</body>
+</html>
